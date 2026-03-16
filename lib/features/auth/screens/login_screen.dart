@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           'Sign in to',
           style: TextStyle(
-            fontFamily: 'Cormorant Garamond',
+            fontFamily: 'serif',
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: Color(0xFFF4EFEA),
@@ -160,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           'continue',
           style: TextStyle(
-            fontFamily: 'Cormorant Garamond',
+            fontFamily: 'serif',
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: Color(0xFFF4EFEA),
@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return const Text(
       'Log in to your GigSugo account',
       style: TextStyle(
-        fontFamily: 'DM Sans',
+        fontFamily: 'sans-serif',
         fontSize: 13,
         color: Color(0xFF7E8BA8),
       ),
@@ -189,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
       style: const TextStyle(
         color: Color(0xFFF4EFEA),
         fontSize: 14,
-        fontFamily: 'DM Sans',
+        fontFamily: 'sans-serif',
       ),
       decoration: InputDecoration(
         prefixIcon: const Icon(
@@ -201,14 +201,14 @@ class _LoginScreenState extends State<LoginScreen> {
         hintStyle: const TextStyle(
           color: Color(0xFF7E8BA8),
           fontSize: 14,
-          fontFamily: 'DM Sans',
+          fontFamily: 'sans-serif',
         ),
         filled: true,
         fillColor: const Color(0xFF0F1424),
         errorStyle: const TextStyle(
           color: Color(0xFFFF5A5F),
           fontSize: 11,
-          fontFamily: 'DM Sans',
+          fontFamily: 'sans-serif',
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -270,7 +270,7 @@ class _LoginScreenState extends State<LoginScreen> {
       style: const TextStyle(
         color: Color(0xFFF4EFEA),
         fontSize: 14,
-        fontFamily: 'DM Sans',
+        fontFamily: 'sans-serif',
       ),
       decoration: InputDecoration(
         prefixIcon: const Icon(
@@ -296,14 +296,14 @@ class _LoginScreenState extends State<LoginScreen> {
         hintStyle: const TextStyle(
           color: Color(0xFF7E8BA8),
           fontSize: 14,
-          fontFamily: 'DM Sans',
+          fontFamily: 'sans-serif',
         ),
         filled: true,
         fillColor: const Color(0xFF0F1424),
         errorStyle: const TextStyle(
           color: Color(0xFFFF5A5F),
           fontSize: 11,
-          fontFamily: 'DM Sans',
+          fontFamily: 'sans-serif',
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -424,7 +424,7 @@ class _LoginScreenState extends State<LoginScreen> {
             : const Text(
                 'Log In',
                 style: TextStyle(
-                  fontFamily: 'DM Sans',
+                  fontFamily: 'sans-serif',
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF07080E),
@@ -504,7 +504,7 @@ class _LoginScreenState extends State<LoginScreen> {
               label: const Text(
                 'Facebook',
                 style: TextStyle(
-                  fontFamily: 'DM Sans',
+                  fontFamily: 'sans-serif',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,

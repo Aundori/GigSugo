@@ -1,0 +1,37 @@
+{
+  "project_info": {
+    "project_number": "479168991770",
+    "project_id": "gigsugo",
+    "storage_bucket": "gigsugo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479168991770:android:c4e59504b99db8f89fb7a3",
+        "android_client_info": {
+          "package_name": "com.example.gigsugo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByPjcigdhZpiWnRRRE9fRZVt3jjhKORxc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        },
+        "auth_service": {
+          "api_key": [
+            {
+              "current_key": "AIzaSyByPjcigdhZpiWnRRRE9fRZVt3jjhKORxc"
+            }
+          ],
+          "oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

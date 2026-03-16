@@ -154,7 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return const Text(
       'Create Account',
       style: TextStyle(
-        fontFamily: 'Cormorant Garamond',
+        fontFamily: 'serif',
         fontSize: 24,
         fontWeight: FontWeight.bold,
         color: Color(0xFFF4EFEA),
@@ -168,12 +168,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       style: const TextStyle(
         color: Color(0xFFF4EFEA),
         fontSize: 14,
-        fontFamily: 'DM Sans',
+        fontFamily: 'sans-serif',
       ),
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF7E8BA8), size: 20),
         hintText: 'Full name',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'DM Sans'),
+        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
         filled: true,
         fillColor: const Color(0xFF13192E),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -208,12 +208,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       style: const TextStyle(
         color: Color(0xFFF4EFEA),
         fontSize: 14,
-        fontFamily: 'DM Sans',
+        fontFamily: 'sans-serif',
       ),
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF7E8BA8), size: 20),
         hintText: 'Email address',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'DM Sans'),
+        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
         filled: true,
         fillColor: const Color(0xFF13192E),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -251,12 +251,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       style: const TextStyle(
         color: Color(0xFFF4EFEA),
         fontSize: 14,
-        fontFamily: 'DM Sans',
+        fontFamily: 'sans-serif',
       ),
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.phone_outlined, color: Color(0xFF7E8BA8), size: 20),
         hintText: 'Phone number',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'DM Sans'),
+        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
         filled: true,
         fillColor: const Color(0xFF13192E),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -291,7 +291,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       style: const TextStyle(
         color: Color(0xFFF4EFEA),
         fontSize: 14,
-        fontFamily: 'DM Sans',
+        fontFamily: 'sans-serif',
       ),
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF7E8BA8), size: 20),
@@ -301,7 +301,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
         ),
         hintText: 'Password',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'DM Sans'),
+        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
         filled: true,
         fillColor: const Color(0xFF13192E),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -337,7 +337,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       style: const TextStyle(
         color: Color(0xFFF4EFEA),
         fontSize: 14,
-        fontFamily: 'DM Sans',
+        fontFamily: 'sans-serif',
       ),
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF7E8BA8), size: 20),
@@ -347,7 +347,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
         ),
         hintText: 'Confirm password',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'DM Sans'),
+        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
         filled: true,
         fillColor: const Color(0xFF13192E),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -398,7 +398,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Expanded(
           child: RichText(
             text: const TextSpan(
-              style: TextStyle(color: Color(0xFF7E8BA8), fontSize: 12, fontFamily: 'DM Sans'),
+              style: TextStyle(color: Color(0xFF7E8BA8), fontSize: 12, fontFamily: 'sans-serif'),
               children: [
                 TextSpan(text: 'I agree to the '),
                 TextSpan(
@@ -458,7 +458,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       color: Color(0xFF0C0800),
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      fontFamily: 'DM Sans',
+                      fontFamily: 'sans-serif',
                     ),
                   ),
           ),
