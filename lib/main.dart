@@ -5,6 +5,7 @@ import 'features/auth/screens/splash_screen.dart';
 import 'features/auth/screens/onboarding_screen.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/register_screen.dart';
+import 'features/auth/screens/role_select_screen.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
@@ -81,14 +82,7 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/role-select',
-      builder: (context, state) => const Scaffold(
-        body: Center(
-          child: Text(
-            'Role Select Screen - Coming Next',
-            style: TextStyle(color: Colors.white, fontSize: 24),
-          ),
-        ),
-      ),
+      builder: (context, state) => const RoleSelectScreen(),
     ),
   ],
 );

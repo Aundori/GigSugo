@@ -53,10 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
           } else if (role == 'client') {
             if (mounted) context.go('/client-home');
           } else {
-            if (mounted) context.go('/onboarding');
+            if (mounted) context.go('/role-select');
           }
         } else {
-          if (mounted) context.go('/onboarding');
+          if (mounted) context.go('/role-select');
         }
       }
     } catch (e) {
