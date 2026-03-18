@@ -12,7 +12,20 @@
           "package_name": "com.example.gigsugo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "479168991770-lqgbc43kk6npeh2sqp1amp72kvuv0nql.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gigsugo",
+            "certificate_hash": "83deabc21b330c6757ad778deb1d0cb6df1191ee"
+          }
+        },
+        {
+          "client_id": "479168991770-6gn9j8lj7iuji20dpskofoqtc3lkopfm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyByPjcigdhZpiWnRRRE9fRZVt3jjhKORxc"
@@ -20,15 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
-        },
-        "auth_service": {
-          "api_key": [
+          "other_platform_oauth_client": [
             {
-              "current_key": "AIzaSyByPjcigdhZpiWnRRRE9fRZVt3jjhKORxc"
+              "client_id": "479168991770-6gn9j8lj7iuji20dpskofoqtc3lkopfm.apps.googleusercontent.com",
+              "client_type": 3
             }
-          ],
-          "oauth_client": []
+          ]
         }
       }
     }

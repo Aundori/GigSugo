@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -90,6 +91,122 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _isLoading = false;
         });
+      }
+    }
+  }
+
+  void _onGoogleSignInPressed() {
+    if (!_isLoading) {
+      _handleGoogleSignIn();
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      setState(() => _isLoading = true);
+
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User cancelled
+        if (mounted) setState(() => _isLoading = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+
+      if (userCredential.user != null && mounted) {
+        await _handleSocialLoginSuccess(userCredential.user!);
+      }
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: ${e.code} - ${e.message}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Google sign in failed'),
+            backgroundColor: const Color(0xFFFF5A5F),
+          ),
+        );
+      }
+    } catch (e) {
+      print('General exception: ${e.toString()}');
+      if (mounted) {
+        String errorMessage = 'Google sign in failed';
+        if (e.toString().contains('userCanceled') || e.toString().contains('canceled')) {
+          errorMessage = 'Google sign in was cancelled';
+        } else if (e.toString().contains('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else {
+          errorMessage = 'Error: ${e.toString()}';
+        }
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: const Color(0xFFFF5A5F),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleSocialLoginSuccess(User user) async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!doc.exists) {
+        // Brand new user — go to role select with pre-filled data
+        if (mounted) {
+          context.go('/role-select', extra: {
+            'fromSocial': true,
+            'name': user.displayName ?? '',
+            'email': user.email ?? '',
+            'uid': user.uid,
+          });
+        }
+      } else {
+        // Returning user — check role and go home
+        final role = doc.data()?['role'] as String?;
+        if (!mounted) return;
+
+        if (role == 'musician') {
+          context.go('/musician-home');
+        } else if (role == 'client') {
+          context.go('/client-home');
+        } else {
+          // Has account but no role yet
+          context.go('/role-select', extra: {
+            'fromSocial': true,
+            'name': user.displayName ?? '',
+            'email': user.email ?? '',
+            'uid': user.uid,
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: const Color(0xFFFF5A5F),
+          ),
+        );
       }
     }
   }
@@ -473,9 +590,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: SignInButton(
               Buttons.google,
               text: 'Google',
-              onPressed: () {
-                // TODO: Implement Google login
-              },
+              onPressed: _isLoading ? () {} : _onGoogleSignInPressed,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
                 side: const BorderSide(color: Color(0xFFE0E0E0)),

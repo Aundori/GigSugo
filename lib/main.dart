@@ -82,7 +82,15 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/role-select',
-      builder: (context, state) => const RoleSelectScreen(),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return RoleSelectScreen(
+          fromSocial: extra?['fromSocial'] as bool? ?? false,
+          prefillName: extra?['name'] as String? ?? '',
+          prefillEmail: extra?['email'] as String? ?? '',
+          uid: extra?['uid'] as String? ?? '',
+        );
+      },
     ),
   ],
 );
