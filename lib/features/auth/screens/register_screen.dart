@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,6 +31,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  String _formatPhoneNumber(String value) {
+    // Remove all non-digit characters
+    String digits = value.replaceAll(RegExp(r'\D'), '');
+    
+    // Limit to 11 digits
+    if (digits.length > 11) {
+      digits = digits.substring(0, 11);
+    }
+    
+    // Format as 09XX-XXX-XXXX
+    if (digits.length >= 4) {
+      String formatted = digits.substring(0, 4);
+      if (digits.length > 4) {
+        formatted += '-' + digits.substring(4, 7);
+      }
+      if (digits.length > 7) {
+        formatted += '-' + digits.substring(7);
+      }
+      return formatted;
+    }
+    
+    return digits;
   }
 
   Future<void> _register() async {
@@ -163,216 +188,477 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildNameField() {
-    return TextFormField(
-      controller: _nameController,
-      style: const TextStyle(
-        color: Color(0xFFF4EFEA),
-        fontSize: 14,
-        fontFamily: 'sans-serif',
-      ),
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF7E8BA8), size: 20),
-        hintText: 'Full name',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
-        filled: true,
-        fillColor: const Color(0xFF13192E),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'NAME OR BUSINESS NAME',
+          style: TextStyle(
+            fontFamily: 'DM Sans',
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF3A4560),
+            letterSpacing: 1.5,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: _nameController,
+          style: const TextStyle(
+            color: Color(0xFFF4EFEA),
+            fontSize: 13,
+            fontFamily: 'DM Sans',
+          ),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(
+              Icons.person_outline,
+              color: Color(0xFF7E8BA8),
+              size: 18,
+            ),
+            hintText: 'Your name or business name',
+            hintStyle: const TextStyle(
+              color: Color(0xFF7E8BA8),
+              fontSize: 13,
+              fontFamily: 'DM Sans',
+            ),
+            filled: true,
+            fillColor: const Color(0xFF0F1424),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFF1C2338),
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFF5A623),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1.5,
+              ),
+            ),
+            errorStyle: const TextStyle(
+              color: Color(0xFFFF5A5F),
+              fontSize: 11,
+              fontFamily: 'DM Sans',
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please enter your name or business name';
+            }
+            if (value.trim().length < 3) {
+              return 'Must be at least 3 characters';
+            }
+            if (value.trim().length > 60) {
+              return 'Name is too long';
+            }
+            // Allow letters, numbers, spaces, and
+            // common business name characters: & ' . , -
+            if (!RegExp(r"^[a-zA-Z0-9\s\&\'\.\,\-]+$")
+                .hasMatch(value.trim())) {
+              return 'Please enter a valid name';
+            }
+            return null;
+          },
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFFF5A5F)),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Please enter your full name';
-        return null;
-      },
+      ],
     );
   }
 
   Widget _buildEmailField() {
-    return TextFormField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      style: const TextStyle(
-        color: Color(0xFFF4EFEA),
-        fontSize: 14,
-        fontFamily: 'sans-serif',
-      ),
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF7E8BA8), size: 20),
-        hintText: 'Email address',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
-        filled: true,
-        fillColor: const Color(0xFF13192E),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'EMAIL ADDRESS',
+          style: TextStyle(
+            fontFamily: 'DM Sans',
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF3A4560),
+            letterSpacing: 1.5,
+          ),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          style: const TextStyle(
+            color: Color(0xFFF4EFEA),
+            fontSize: 13,
+            fontFamily: 'DM Sans',
+          ),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(
+              Icons.email_outlined,
+              color: Color(0xFF7E8BA8),
+              size: 18,
+            ),
+            hintText: 'Your email address',
+            hintStyle: const TextStyle(
+              color: Color(0xFF7E8BA8),
+              fontSize: 13,
+              fontFamily: 'DM Sans',
+            ),
+            filled: true,
+            fillColor: const Color(0xFF0F1424),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFF1C2338),
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFF5A623),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1.5,
+              ),
+            ),
+            errorStyle: const TextStyle(
+              color: Color(0xFFFF5A5F),
+              fontSize: 11,
+              fontFamily: 'DM Sans',
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Please enter your email';
+            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              return 'Please enter a valid email';
+            }
+            return null;
+          },
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFFF5A5F)),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Please enter your email';
-        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-          return 'Please enter a valid email';
-        }
-        return null;
-      },
+      ],
     );
   }
 
   Widget _buildPhoneField() {
-    return TextFormField(
-      controller: _phoneController,
-      keyboardType: TextInputType.phone,
-      style: const TextStyle(
-        color: Color(0xFFF4EFEA),
-        fontSize: 14,
-        fontFamily: 'sans-serif',
-      ),
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.phone_outlined, color: Color(0xFF7E8BA8), size: 20),
-        hintText: 'Phone number',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
-        filled: true,
-        fillColor: const Color(0xFF13192E),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: const [
+            Text(
+              'PHONE NUMBER',
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF3A4560),
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: _phoneController,
+          keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(11),
+            TextInputFormatter.withFunction((oldValue, newValue) {
+              return TextEditingValue(
+                text: _formatPhoneNumber(newValue.text),
+                selection: TextSelection.collapsed(
+                  offset: _formatPhoneNumber(newValue.text).length,
+                ),
+              );
+            }),
+          ],
+          style: const TextStyle(
+            color: Color(0xFFF4EFEA),
+            fontSize: 13,
+            fontFamily: 'DM Sans',
+          ),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(
+              Icons.phone_outlined,
+              color: Color(0xFF7E8BA8),
+              size: 18,
+            ),
+            hintText: '0917-XXX-XXXX',
+            hintStyle: const TextStyle(
+              color: Color(0xFF7E8BA8),
+              fontSize: 13,
+              fontFamily: 'DM Sans',
+            ),
+            filled: true,
+            fillColor: const Color(0xFF0F1424),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFF1C2338),
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFF5A623),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1.5,
+              ),
+            ),
+            errorStyle: const TextStyle(
+              color: Color(0xFFFF5A5F),
+              fontSize: 11,
+              fontFamily: 'DM Sans',
+            ),
+          ),
+          validator: (value) {
+            // Remove formatting for validation
+            String cleanValue = value?.replaceAll(RegExp(r'\D'), '') ?? '';
+            if (cleanValue.isEmpty) return 'Please enter your phone number';
+            if (cleanValue.length != 11) return 'Invalid phone number';
+            if (!RegExp(r'^09\d{9}$').hasMatch(cleanValue)) {
+              return 'Invalid phone number';
+            }
+            return null;
+          },
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFFF5A5F)),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Please enter your phone number';
-        return null;
-      },
+      ],
     );
   }
 
   Widget _buildPasswordField() {
-    return TextFormField(
-      controller: _passwordController,
-      obscureText: _obscurePassword,
-      style: const TextStyle(
-        color: Color(0xFFF4EFEA),
-        fontSize: 14,
-        fontFamily: 'sans-serif',
-      ),
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF7E8BA8), size: 20),
-        suffixIcon: IconButton(
-          icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, 
-                     color: const Color(0xFF7E8BA8), size: 20),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'PASSWORD',
+          style: TextStyle(
+            fontFamily: 'DM Sans',
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF3A4560),
+            letterSpacing: 1.5,
+          ),
         ),
-        hintText: 'Password',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
-        filled: true,
-        fillColor: const Color(0xFF13192E),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          style: const TextStyle(
+            color: Color(0xFFF4EFEA),
+            fontSize: 13,
+            fontFamily: 'DM Sans',
+          ),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(
+              Icons.lock_outline,
+              color: Color(0xFF7E8BA8),
+              size: 18,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                color: const Color(0xFF7E8BA8),
+                size: 18,
+              ),
+              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+            ),
+            hintText: 'Create a strong password',
+            hintStyle: const TextStyle(
+              color: Color(0xFF7E8BA8),
+              fontSize: 13,
+              fontFamily: 'DM Sans',
+            ),
+            filled: true,
+            fillColor: const Color(0xFF0F1424),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFF1C2338),
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFF5A623),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1.5,
+              ),
+            ),
+            errorStyle: const TextStyle(
+              color: Color(0xFFFF5A5F),
+              fontSize: 11,
+              fontFamily: 'DM Sans',
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Please enter a password';
+            if (value.length < 6) return 'Password must be at least 6 characters';
+            return null;
+          },
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFFF5A5F)),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Please enter a password';
-        if (value.length < 6) return 'Password must be at least 6 characters';
-        return null;
-      },
+      ],
     );
   }
 
   Widget _buildConfirmPasswordField() {
-    return TextFormField(
-      controller: _confirmPasswordController,
-      obscureText: _obscureConfirmPassword,
-      style: const TextStyle(
-        color: Color(0xFFF4EFEA),
-        fontSize: 14,
-        fontFamily: 'sans-serif',
-      ),
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF7E8BA8), size: 20),
-        suffixIcon: IconButton(
-          icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility, 
-                     color: const Color(0xFF7E8BA8), size: 20),
-          onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'CONFIRM PASSWORD',
+          style: TextStyle(
+            fontFamily: 'DM Sans',
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF3A4560),
+            letterSpacing: 1.5,
+          ),
         ),
-        hintText: 'Confirm password',
-        hintStyle: const TextStyle(color: Color(0xFF7E8BA8), fontSize: 14, fontFamily: 'sans-serif'),
-        filled: true,
-        fillColor: const Color(0xFF13192E),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: _confirmPasswordController,
+          obscureText: _obscureConfirmPassword,
+          style: const TextStyle(
+            color: Color(0xFFF4EFEA),
+            fontSize: 13,
+            fontFamily: 'DM Sans',
+          ),
+          decoration: InputDecoration(
+            prefixIcon: const Icon(
+              Icons.lock_outline,
+              color: Color(0xFF7E8BA8),
+              size: 18,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                color: const Color(0xFF7E8BA8),
+                size: 18,
+              ),
+              onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+            ),
+            hintText: 'Re-enter your password',
+            hintStyle: const TextStyle(
+              color: Color(0xFF7E8BA8),
+              fontSize: 13,
+              fontFamily: 'DM Sans',
+            ),
+            filled: true,
+            fillColor: const Color(0xFF0F1424),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFF1C2338),
+                width: 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFF5A623),
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFFFF5A5F),
+                width: 1.5,
+              ),
+            ),
+            errorStyle: const TextStyle(
+              color: Color(0xFFFF5A5F),
+              fontSize: 11,
+              fontFamily: 'DM Sans',
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Please confirm your password';
+            if (value != _passwordController.text) return 'Passwords do not match';
+            return null;
+          },
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF1C2338)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFF5A623), width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFFF5A5F)),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Please confirm your password';
-        if (value != _passwordController.text) return 'Passwords do not match';
-        return null;
-      },
+      ],
     );
   }
 

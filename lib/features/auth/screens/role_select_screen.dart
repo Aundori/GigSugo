@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -45,9 +46,34 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
     super.dispose();
   }
 
+  String _formatPhoneNumber(String value) {
+    // Remove all non-digit characters
+    String digits = value.replaceAll(RegExp(r'\D'), '');
+    
+    // Limit to 11 digits
+    if (digits.length > 11) {
+      digits = digits.substring(0, 11);
+    }
+    
+    // Format as 09XX-XXX-XXXX
+    if (digits.length >= 4) {
+      String formatted = digits.substring(0, 4);
+      if (digits.length > 4) {
+        formatted += '-' + digits.substring(4, 7);
+      }
+      if (digits.length > 7) {
+        formatted += '-' + digits.substring(7);
+      }
+      return formatted;
+    }
+    
+    return digits;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -60,10 +86,10 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
           ),
         ),
         child: SafeArea(
-          child: Form(
-            key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -88,33 +114,27 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
                   ),
                   const SizedBox(height: 40),
                   if (widget.fromSocial) _buildSocialProfileFields(),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _RoleCard(
-                          title: 'Musician',
-                          description: 'Find gigs and get hired for events',
-                          icon: _buildWaveformIcon(),
-                          isSelected: selectedRole == 'musician',
-                          onTap: () => setState(() => selectedRole = 'musician'),
-                          selectedColor: const Color(0xFFF5A623),
-                          unselectedBorderColor: const Color(0xFFF5A623).withValues(alpha: 0.3),
-                          unselectedBgColor: const Color(0xFFF5A623).withValues(alpha: 0.05),
-                        ),
-                        const SizedBox(height: 20),
-                        _RoleCard(
-                          title: 'Client',
-                          description: 'Hire musicians for your events',
-                          icon: _buildBriefcaseIcon(),
-                          isSelected: selectedRole == 'client',
-                          onTap: () => setState(() => selectedRole = 'client'),
-                          selectedColor: const Color(0xFF8B6FFF),
-                          unselectedBorderColor: const Color(0xFF8B6FFF).withValues(alpha: 0.3),
-                          unselectedBgColor: const Color(0xFF8B6FFF).withValues(alpha: 0.05),
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 40),
+                  _RoleCard(
+                    title: 'Musician',
+                    description: 'Find gigs and get hired for events',
+                    icon: _buildWaveformIcon(),
+                    isSelected: selectedRole == 'musician',
+                    onTap: () => setState(() => selectedRole = 'musician'),
+                    selectedColor: const Color(0xFFF5A623),
+                    unselectedBorderColor: const Color(0xFFF5A623).withValues(alpha: 0.3),
+                    unselectedBgColor: const Color(0xFFF5A623).withValues(alpha: 0.05),
+                  ),
+                  const SizedBox(height: 20),
+                  _RoleCard(
+                    title: 'Client',
+                    description: 'Hire musicians for your events',
+                    icon: _buildBriefcaseIcon(),
+                    isSelected: selectedRole == 'client',
+                    onTap: () => setState(() => selectedRole = 'client'),
+                    selectedColor: const Color(0xFF8B6FFF),
+                    unselectedBorderColor: const Color(0xFF8B6FFF).withValues(alpha: 0.3),
+                    unselectedBgColor: const Color(0xFF8B6FFF).withValues(alpha: 0.05),
                   ),
                   const SizedBox(height: 40),
                   SizedBox(
@@ -159,6 +179,7 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
                             ),
                     ),
                   ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -198,7 +219,7 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
 
           // Full name field
           const Text(
-            'FULL NAME',
+            'NAME OR BUSINESS NAME',
             style: TextStyle(
               fontFamily: 'DM Sans',
               fontSize: 9,
@@ -219,10 +240,10 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
             decoration: InputDecoration(
               prefixIcon: const Icon(
                 Icons.person_outline,
-                color: Color(0xFFF5A623),
+                color: Color(0xFF7E8BA8),
                 size: 18,
               ),
-              hintText: 'Your full name',
+              hintText: 'Your name or business name',
               hintStyle: const TextStyle(
                 color: Color(0xFF7E8BA8),
                 fontSize: 13,
@@ -237,7 +258,7 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: const BorderSide(
-                  color: Color(0xFFF5A623),
+                  color: Color(0xFF1C2338),
                   width: 1,
                 ),
               ),
@@ -269,17 +290,17 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter your full name';
+                return 'Please enter your name or business name';
               }
-              final parts = value.trim().split(RegExp(r'\s+'));
-              if (parts.length < 2) {
-                return 'Please enter your first and last name';
+              if (value.trim().length < 3) {
+                return 'Must be at least 3 characters';
               }
-              if (parts.any((p) => p.length < 2)) {
-                return 'Please enter a valid full name';
+              if (value.trim().length > 60) {
+                return 'Name is too long';
               }
-              if (!RegExp(r"^[a-zA-Z\s\-\'\.]+$").hasMatch(value.trim())) {
-                return 'Name can only contain letters';
+              if (!RegExp(r"^[a-zA-Z0-9\s\&\'\.\,\-]+$")
+                  .hasMatch(value.trim())) {
+                return 'Please enter a valid name';
               }
               return null;
             },
@@ -287,34 +308,32 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
           const SizedBox(height: 12),
 
           // Phone number field
-          Row(
-            children: const [
-              Text(
-                'PHONE NUMBER',
-                style: TextStyle(
-                  fontFamily: 'DM Sans',
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF3A4560),
-                  letterSpacing: 1.5,
-                ),
-              ),
-              SizedBox(width: 4),
-              Text(
-                '* required',
-                style: TextStyle(
-                  fontFamily: 'DM Sans',
-                  fontSize: 9,
-                  color: Color(0xFFFF5A5F),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+          const Text(
+            'PHONE NUMBER',
+            style: TextStyle(
+              fontFamily: 'DM Sans',
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF3A4560),
+              letterSpacing: 1.5,
+            ),
           ),
           const SizedBox(height: 6),
           TextFormField(
             controller: _phoneController,
             keyboardType: TextInputType.phone,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(11),
+              TextInputFormatter.withFunction((oldValue, newValue) {
+                return TextEditingValue(
+                  text: _formatPhoneNumber(newValue.text),
+                  selection: TextSelection.collapsed(
+                    offset: _formatPhoneNumber(newValue.text).length,
+                  ),
+                );
+              }),
+            ],
             style: const TextStyle(
               color: Color(0xFFF4EFEA),
               fontSize: 13,
@@ -367,11 +386,16 @@ class _RoleSelectScreenState extends ConsumerState<RoleSelectScreen> {
               ),
             ),
             validator: (value) {
-              if (value == null || value.trim().isEmpty) {
+              // Remove formatting for validation
+              String cleanValue = value?.replaceAll(RegExp(r'\D'), '') ?? '';
+              if (cleanValue.isEmpty) {
                 return 'Phone number is required';
               }
-              if (value.trim().length < 10) {
-                return 'Please enter a valid phone number';
+              if (cleanValue.length != 11) {
+                return 'Please enter a valid 11-digit Philippine phone number';
+              }
+              if (!RegExp(r'^09\d{9}$').hasMatch(cleanValue)) {
+                return 'Phone number must start with 09 and be 11 digits';
               }
               return null;
             },
