@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/auth/screens/splash_screen.dart';
 import 'features/auth/screens/onboarding_screen.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/register_screen.dart';
 import 'features/auth/screens/role_select_screen.dart';
+import 'features/home/screens/musician_home_screen.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const GigSugoApp());
+  runApp(const ProviderScope(child: GigSugoApp()));
 }
 
 class GigSugoApp extends StatelessWidget {
@@ -52,14 +54,7 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/musician-home',
-      builder: (context, state) => const Scaffold(
-        body: Center(
-          child: Text(
-            'Musician Home - Coming Next',
-            style: TextStyle(color: Colors.white, fontSize: 24),
-          ),
-        ),
-      ),
+      builder: (context, state) => const MusicianHomeScreen(),
     ),
     GoRoute(
       path: '/client-home',

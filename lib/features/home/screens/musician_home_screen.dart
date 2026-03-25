@@ -145,70 +145,66 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
         color: AppColors.amber,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: 80),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _getGreeting(),
-                          style: const TextStyle(
-                            fontFamily: 'DM Sans',
-                            fontSize: 11,
-                            color: AppColors.sub,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        userNameAsync.when(
-                          data: (name) => Text(
-                            name,
-                            style: const TextStyle(
-                              fontFamily: 'Cormorant Garamond',
-                              fontSize: 22,
-                              color: AppColors.text,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          loading: () => const SizedBox(
-                            width: 120,
-                            height: 28,
-                            child: Skeleton(),
-                          ),
-                          error: (_, _) => const Text(
-                            'Musician',
-                            style: TextStyle(
-                              fontFamily: 'Cormorant Garamond',
-                              fontSize: 22,
-                              color: AppColors.text,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        gradient: const LinearGradient(
-                          colors: [AppColors.amber, AppColors.copper],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getGreeting(),
+                        style: const TextStyle(
+                          fontFamily: 'DM Sans',
+                          fontSize: 11,
+                          color: AppColors.sub,
                         ),
                       ),
-                      child: const GigSugoLogo(size: 24),
+                      const SizedBox(height: 4),
+                      userNameAsync.when(
+                        data: (name) => Text(
+                          name,
+                          style: const TextStyle(
+                            fontFamily: 'Cormorant Garamond',
+                            fontSize: 22,
+                            color: AppColors.text,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        loading: () => const SizedBox(
+                          width: 120,
+                          height: 28,
+                          child: Skeleton(),
+                        ),
+                        error: (_, __) => const Text(
+                          'Musician',
+                          style: TextStyle(
+                            fontFamily: 'Cormorant Garamond',
+                            fontSize: 22,
+                            color: AppColors.text,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: const LinearGradient(
+                        colors: [AppColors.amber, AppColors.copper],
+                      ),
                     ),
-                  ],
-                ),
+                    child: const GigSugoLogo(size: 24),
+                  ),
+                ],
               ),
-
               // Stats Row
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -349,7 +345,7 @@ class _StatCard extends StatelessWidget {
             value,
             style: TextStyle(
               fontFamily: 'Cormorant Garamond',
-              fontSize: 24,
+              fontSize: 28,
               color: color,
               fontWeight: FontWeight.w600,
             ),
@@ -418,7 +414,7 @@ class _FeaturedGigCard extends StatelessWidget {
                   gig.title,
                   style: const TextStyle(
                     fontFamily: 'Cormorant Garamond',
-                    fontSize: 16,
+                    fontSize: 18,
                     color: AppColors.bg,
                     fontWeight: FontWeight.w600,
                   ),
@@ -447,7 +443,7 @@ class _FeaturedGigCard extends StatelessWidget {
                   gig.budget,
                   style: const TextStyle(
                     fontFamily: 'Cormorant Garamond',
-                    fontSize: 17,
+                    fontSize: 20,
                     color: AppColors.bg,
                     fontWeight: FontWeight.w600,
                   ),
@@ -465,6 +461,19 @@ class _NearbyGigCard extends StatelessWidget {
   final Gig gig;
 
   const _NearbyGigCard({required this.gig});
+
+  Color _getTagColor(String tag) {
+    switch (tag.toUpperCase()) {
+      case 'CAFÉ':
+        return const Color(0xFF00C896).withOpacity(0.2); // Green
+      case 'CORPORATE':
+        return const Color(0xFFF5A623).withOpacity(0.2); // Amber
+      case 'PARTY':
+        return const Color(0xFF8B6FFF).withOpacity(0.2); // Violet
+      default:
+        return AppColors.amberDim;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -495,17 +504,17 @@ class _NearbyGigCard extends StatelessWidget {
                   if (gig.tag != null) ...[
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppColors.amberDim,
+                        color: _getTagColor(gig.tag!),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         gig.tag!,
                         style: const TextStyle(
                           fontFamily: 'DM Sans',
-                          fontSize: 8,
-                          color: AppColors.amber,
+                          fontSize: 9,
+                          color: AppColors.text,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -537,7 +546,7 @@ class _NearbyGigCard extends StatelessWidget {
               gig.budget,
               style: const TextStyle(
                 fontFamily: 'Cormorant Garamond',
-                fontSize: 13,
+                fontSize: 15,
                 color: AppColors.amber,
                 fontWeight: FontWeight.w600,
               ),
