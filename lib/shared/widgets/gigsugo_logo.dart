@@ -13,10 +13,27 @@ class GigSugoLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size(size, size),
-      painter: _GigSugoLogoPainter(
-        isDarkOnLight: isDarkOnLight,
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(size * 0.2),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.amber,
+            AppColors.copper,
+          ],
+        ),
+      ),
+      child: Center(
+        child: CustomPaint(
+          size: Size(size * 0.6, size * 0.6),
+          painter: _GigSugoLogoPainter(
+            isDarkOnLight: isDarkOnLight,
+          ),
+        ),
       ),
     );
   }
@@ -29,17 +46,18 @@ class _GigSugoLogoPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final barColor = isDarkOnLight ? AppColors.bg : AppColors.amber;
-    final strokeWidth = size.width / 20;
-    final spacing = size.width / 6;
+    final barColor = AppColors.bg;
+    final strokeWidth = size.width / 25;
+    final spacing = size.width / 7;
+    final startX = (size.width - spacing * 5) / 2;
     
     // Define bar positions and heights
     final bars = [
-      {'x': spacing, 'height': size.height * 0.4, 'opacity': 0.45},
-      {'x': spacing * 2, 'height': size.height * 0.6, 'opacity': 0.70},
-      {'x': spacing * 3, 'height': size.height * 0.8, 'opacity': 1.0, 'thick': true}, // Center bar
-      {'x': spacing * 4, 'height': size.height * 0.6, 'opacity': 0.70},
-      {'x': spacing * 5, 'height': size.height * 0.4, 'opacity': 0.45},
+      {'x': startX, 'height': size.height * 0.4, 'opacity': 0.45},
+      {'x': startX + spacing, 'height': size.height * 0.6, 'opacity': 0.70},
+      {'x': startX + spacing * 2, 'height': size.height * 0.8, 'opacity': 1.0, 'thick': true}, // Center bar
+      {'x': startX + spacing * 3, 'height': size.height * 0.6, 'opacity': 0.70},
+      {'x': startX + spacing * 4, 'height': size.height * 0.4, 'opacity': 0.45},
     ];
 
     for (final bar in bars) {

@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
-import '../../../shared/widgets/gigsugo_logo.dart';
 
 class Gig {
   final String id;
@@ -263,12 +262,68 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                         colors: [AppColors.amber, AppColors.copper],
                       ),
                     ),
-                    child: const GigSugoLogo(
-                      size: 24,
-                      isDarkOnLight: true,
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Bar 1 — short, opacity 0.45
+                          Container(
+                            width: 2,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: AppColors.bg.withOpacity(0.45),
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          // Bar 2 — medium, opacity 0.70
+                          Container(
+                            width: 2,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: AppColors.bg.withOpacity(0.70),
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          // Bar 3 — tallest, full opacity, slightly thicker
+                          Container(
+                            width: 3,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: AppColors.bg,
+                              borderRadius: BorderRadius.circular(1.5),
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          // Bar 4 — medium, opacity 0.70
+                          Container(
+                            width: 2,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: AppColors.bg.withOpacity(0.70),
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          // Bar 5 — short, opacity 0.45
+                          Container(
+                            width: 2,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: AppColors.bg.withOpacity(0.45),
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
