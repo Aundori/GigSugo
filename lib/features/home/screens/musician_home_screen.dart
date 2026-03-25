@@ -206,7 +206,7 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
           padding: const EdgeInsets.only(
             left: 20.0,
             right: 20.0,
-            top: 20.0,
+            top: 80.0,
             bottom: 100.0,
           ),
           child: Column(
@@ -216,6 +216,7 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
               // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,7 +266,10 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                         colors: [AppColors.amber, AppColors.copper],
                       ),
                     ),
-                    child: const GigSugoLogo(size: 24),
+                    child: const GigSugoLogo(
+                      size: 24,
+                      isDarkOnLight: true,
+                    ),
                   ),
                 ],
               ),
@@ -623,25 +627,25 @@ class _BottomNavigationBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _NavItem(
-            icon: _HomeIcon(),
+            iconData: Icons.home,
             label: 'Home',
             isActive: true,
             onTap: () {},
           ),
           _NavItem(
-            icon: _GigsIcon(),
+            iconData: Icons.work,
             label: 'Gigs',
             isActive: false,
             onTap: () => context.go('/gigs'),
           ),
           _NavItem(
-            icon: _AppliedIcon(),
+            iconData: Icons.send,
             label: 'Applied',
             isActive: false,
             onTap: () => context.go('/applications'),
           ),
           _NavItem(
-            icon: _ProfileIcon(),
+            iconData: Icons.person,
             label: 'Profile',
             isActive: false,
             onTap: () => context.go('/profile'),
@@ -653,13 +657,13 @@ class _BottomNavigationBar extends StatelessWidget {
 }
 
 class _NavItem extends StatelessWidget {
-  final Widget icon;
+  final IconData iconData;
   final String label;
   final bool isActive;
   final VoidCallback onTap;
 
   const _NavItem({
-    required this.icon,
+    required this.iconData,
     required this.label,
     required this.isActive,
     required this.onTap,
@@ -672,7 +676,11 @@ class _NavItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          icon,
+          Icon(
+            iconData,
+            size: 24,
+            color: isActive ? AppColors.text : AppColors.sub,
+          ),
           const SizedBox(height: 4),
           Container(
             width: 14,
