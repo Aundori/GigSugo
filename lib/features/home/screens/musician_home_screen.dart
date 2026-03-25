@@ -106,6 +106,63 @@ final userNameProvider = FutureProvider<String>((ref) async {
   return doc.data()?['name'] ?? 'Musician';
 });
 
+// Mock providers for development - remove when real data is available
+final mockFeaturedGigProvider = FutureProvider<Gig?>((ref) async {
+  return Gig(
+    id: '1',
+    title: 'Live Band - Wedding Reception',
+    location: 'Iloilo City',
+    date: 'Jan 25, 2025',
+    budget: '₱10,000',
+    tag: null,
+    createdAt: Timestamp.now(),
+  );
+});
+
+final mockNearbyGigsProvider = FutureProvider<List<Gig>>((ref) async {
+  return [
+    Gig(
+      id: '2',
+      title: 'Acoustic Set - Coffee Shop',
+      location: 'Koronadal',
+      date: 'Jan 28, 2025',
+      budget: '₱2,500',
+      tag: 'CAFÉ',
+      createdAt: Timestamp.now(),
+    ),
+    Gig(
+      id: '3',
+      title: 'Corporate Event Band',
+      location: 'GenSan',
+      date: 'Feb 2, 2025',
+      budget: '₱15,000',
+      tag: 'CORPORATE',
+      createdAt: Timestamp.now(),
+    ),
+    Gig(
+      id: '4',
+      title: 'Birthday Party Acoustic',
+      location: 'Tacurong',
+      date: 'Feb 5, 2025',
+      budget: '₱5,000',
+      tag: 'PARTY',
+      createdAt: Timestamp.now(),
+    ),
+  ];
+});
+
+final mockUserStatsProvider = FutureProvider<UserStats>((ref) async {
+  return UserStats(
+    applied: 5,
+    accepted: 2,
+    rating: 4.8,
+  );
+});
+
+final mockUserNameProvider = FutureProvider<String>((ref) async {
+  return 'Juan dela Cruz';
+});
+
 class MusicianHomeScreen extends ConsumerStatefulWidget {
   const MusicianHomeScreen({super.key});
 
@@ -132,10 +189,11 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userNameAsync = ref.watch(userNameProvider);
-    final featuredGigAsync = ref.watch(featuredGigProvider);
-    final nearbyGigsAsync = ref.watch(nearbyGigsProvider);
-    final userStatsAsync = ref.watch(userStatsProvider);
+    // Use mock providers for development - switch to real providers when data is available
+    final userNameAsync = ref.watch(mockUserNameProvider);
+    final featuredGigAsync = ref.watch(mockFeaturedGigProvider);
+    final nearbyGigsAsync = ref.watch(mockNearbyGigsProvider);
+    final userStatsAsync = ref.watch(mockUserStatsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -145,9 +203,15 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
         color: AppColors.amber,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+          padding: const EdgeInsets.only(
+            left: 20.0,
+            right: 20.0,
+            top: 20.0,
+            bottom: 100.0,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // Header
               Row(
@@ -160,7 +224,7 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                         _getGreeting(),
                         style: const TextStyle(
                           fontFamily: 'DM Sans',
-                          fontSize: 11,
+                          fontSize: 9,
                           color: AppColors.sub,
                         ),
                       ),
@@ -170,7 +234,7 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                           name,
                           style: const TextStyle(
                             fontFamily: 'Cormorant Garamond',
-                            fontSize: 22,
+                            fontSize: 18,
                             color: AppColors.text,
                             fontWeight: FontWeight.w600,
                           ),
@@ -205,10 +269,9 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 12),
               // Stats Row
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: userStatsAsync.when(
+              userStatsAsync.when(
                   data: (stats) => Row(
                     children: [
                       Expanded(
@@ -246,43 +309,28 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                   ),
                   error: (_, _) => const SizedBox(),
                 ),
-              ),
-
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 16),
               // Featured Gig
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: featuredGigAsync.when(
-                  data: (gig) => gig != null ? _FeaturedGigCard(gig: gig) : const SizedBox(),
-                  loading: () => const Skeleton(height: 140),
-                  error: (_, _) => const SizedBox(),
-                ),
+              featuredGigAsync.when(
+                data: (gig) => gig != null ? _FeaturedGigCard(gig: gig) : const SizedBox(),
+                loading: () => const Skeleton(height: 140),
+                error: (_, __) => const SizedBox(),
               ),
-
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 16),
               // Near You Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  'NEAR YOU',
-                  style: const TextStyle(
-                    fontFamily: 'DM Sans',
-                    fontSize: 12,
-                    color: AppColors.muted,
-                    letterSpacing: 1.5,
-                    fontWeight: FontWeight.w600,
-                  ),
+              Text(
+                'NEAR YOU',
+                style: const TextStyle(
+                  fontFamily: 'DM Sans',
+                  fontSize: 12,
+                  color: AppColors.muted,
+                  letterSpacing: 1.5,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-
-              const SizedBox(height: 12),
-
+              const SizedBox(height: 8),
               // Nearby Gigs List
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: nearbyGigsAsync.when(
+              nearbyGigsAsync.when(
                   data: (gigs) => Column(
                     children: gigs.map((gig) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -295,9 +343,8 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                       child: const Skeleton(height: 80),
                     )),
                   ),
-                  error: (_, _) => const SizedBox(),
+                  error: (_, __) => const SizedBox(),
                 ),
-              ),
             ],
           ),
         ),
@@ -321,7 +368,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
+      height: 68,
       decoration: BoxDecoration(
         color: AppColors.card,
         border: Border.all(color: AppColors.border),
@@ -340,12 +387,12 @@ class _StatCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             value,
             style: TextStyle(
               fontFamily: 'Cormorant Garamond',
-              fontSize: 28,
+              fontSize: 22,
               color: color,
               fontWeight: FontWeight.w600,
             ),
@@ -364,7 +411,7 @@ class _FeaturedGigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 140,
+      height: 150,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: const LinearGradient(
@@ -409,12 +456,12 @@ class _FeaturedGigCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 4),
                 Text(
                   gig.title,
                   style: const TextStyle(
                     fontFamily: 'Cormorant Garamond',
-                    fontSize: 18,
+                    fontSize: 16,
                     color: AppColors.bg,
                     fontWeight: FontWeight.w600,
                   ),
@@ -438,12 +485,12 @@ class _FeaturedGigCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Spacer(),
+                const SizedBox(height: 6),
                 Text(
                   gig.budget,
                   style: const TextStyle(
                     fontFamily: 'Cormorant Garamond',
-                    fontSize: 20,
+                    fontSize: 18,
                     color: AppColors.bg,
                     fontWeight: FontWeight.w600,
                   ),
@@ -478,13 +525,16 @@ class _NearbyGigCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
+      // No fixed height — let content determine height
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 10,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -502,9 +552,9 @@ class _NearbyGigCard extends StatelessWidget {
                     ),
                   ),
                   if (gig.tag != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: _getTagColor(gig.tag!),
                         borderRadius: BorderRadius.circular(4),
@@ -520,7 +570,7 @@ class _NearbyGigCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 3),
                   Row(
                     children: [
                       Icon(
