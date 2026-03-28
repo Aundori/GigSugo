@@ -328,7 +328,7 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 32),
               // Stats Row
               userStatsAsync.when(
                   data: (stats) => Row(
@@ -671,7 +671,7 @@ class _BottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
+      height: 72,
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(
@@ -682,25 +682,25 @@ class _BottomNavigationBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _NavItem(
-            iconData: Icons.home,
+            icon: _HomeIcon(isActive: true),
             label: 'Home',
             isActive: true,
             onTap: () {},
           ),
           _NavItem(
-            iconData: Icons.work,
+            icon: _GigsIcon(isActive: false),
             label: 'Gigs',
             isActive: false,
             onTap: () => context.go('/gigs'),
           ),
           _NavItem(
-            iconData: Icons.send,
+            icon: _AppliedIcon(isActive: false),
             label: 'Applied',
             isActive: false,
             onTap: () => context.go('/applications'),
           ),
           _NavItem(
-            iconData: Icons.person,
+            icon: _ProfileIcon(isActive: false),
             label: 'Profile',
             isActive: false,
             onTap: () => context.go('/profile'),
@@ -712,13 +712,13 @@ class _BottomNavigationBar extends StatelessWidget {
 }
 
 class _NavItem extends StatelessWidget {
-  final IconData iconData;
+  final Widget icon;
   final String label;
   final bool isActive;
   final VoidCallback onTap;
 
   const _NavItem({
-    required this.iconData,
+    required this.icon,
     required this.label,
     required this.isActive,
     required this.onTap,
@@ -730,11 +730,18 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            iconData,
-            size: 24,
-            color: isActive ? AppColors.text : AppColors.sub,
+          icon,
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'DM Sans',
+              fontSize: 10,
+              fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+              color: isActive ? AppColors.amber : AppColors.sub,
+            ),
           ),
           const SizedBox(height: 4),
           Container(
@@ -753,20 +760,28 @@ class _NavItem extends StatelessWidget {
 
 // SVG Icons
 class _HomeIcon extends StatelessWidget {
+  final bool isActive;
+  
+  const _HomeIcon({this.isActive = false});
+
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       size: const Size(24, 24),
-      painter: _HomeIconPainter(),
+      painter: _HomeIconPainter(isActive: isActive),
     );
   }
 }
 
 class _HomeIconPainter extends CustomPainter {
+  final bool isActive;
+  
+  _HomeIconPainter({this.isActive = false});
+  
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.amber
+      ..color = isActive ? AppColors.text : AppColors.sub
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
@@ -788,62 +803,117 @@ class _HomeIconPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _HomeIconPainter oldDelegate) => 
+      oldDelegate.isActive != isActive;
 }
 
 class _GigsIcon extends StatelessWidget {
+  final bool isActive;
+  const _GigsIcon({this.isActive = false});
+
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       size: const Size(24, 24),
-      painter: _GigsIconPainter(),
+      painter: _GigsIconPainter(isActive: isActive),
     );
   }
 }
 
 class _GigsIconPainter extends CustomPainter {
+  final bool isActive;
+  _GigsIconPainter({this.isActive = false});
+
   @override
   void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    final color = isActive ? AppColors.amber : AppColors.sub;
+
     final paint = Paint()
-      ..color = AppColors.muted.withOpacity(0.6)
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
+      ..color = color
+      ..style = PaintingStyle.fill;
 
-    // Music note
-    final path = Path();
-    path.moveTo(8, 3);
-    path.lineTo(8, 17);
-    path.moveTo(8, 5);
-    path.lineTo(16, 3);
-    path.lineTo(16, 15);
-    
-    // Note heads
-    canvas.drawCircle(const Offset(8, 19), 3, paint);
-    canvas.drawCircle(const Offset(16, 17), 3, paint);
+    // Left note stem (vertical line)
+    canvas.drawLine(
+      Offset(w * 0.28, h * 0.82),
+      Offset(w * 0.28, h * 0.22),
+      Paint()
+        ..color = color
+        ..strokeWidth = 2.0
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke,
+    );
 
-    canvas.drawPath(path, paint);
+    // Right note stem (vertical line)
+    canvas.drawLine(
+      Offset(w * 0.68, h * 0.72),
+      Offset(w * 0.68, h * 0.22),
+      Paint()
+        ..color = color
+        ..strokeWidth = 2.0
+        ..strokeCap = StrokeCap.round
+        ..style = PaintingStyle.stroke,
+    );
+
+    // Beam connecting both stems at the top
+    final beamPath = Path();
+    beamPath.moveTo(w * 0.28, h * 0.22);
+    beamPath.lineTo(w * 0.68, h * 0.22);
+    beamPath.lineTo(w * 0.68, h * 0.32);
+    beamPath.lineTo(w * 0.28, h * 0.32);
+    beamPath.close();
+    canvas.drawPath(beamPath, paint);
+
+    // Left note head (filled oval)
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(w * 0.28, h * 0.82),
+        width: w * 0.28,
+        height: h * 0.18,
+      ),
+      paint,
+    );
+
+    // Right note head (filled oval)
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(w * 0.68, h * 0.74),
+        width: w * 0.28,
+        height: h * 0.18,
+      ),
+      paint,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _GigsIconPainter oldDelegate) => 
+      oldDelegate.isActive != isActive;
 }
 
 class _AppliedIcon extends StatelessWidget {
+  final bool isActive;
+  
+  const _AppliedIcon({this.isActive = false});
+
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       size: const Size(24, 24),
-      painter: _AppliedIconPainter(),
+      painter: _AppliedIconPainter(isActive: isActive),
     );
   }
 }
 
 class _AppliedIconPainter extends CustomPainter {
+  final bool isActive;
+  
+  _AppliedIconPainter({this.isActive = false});
+  
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.muted.withOpacity(0.6)
+      ..color = isActive ? AppColors.text : AppColors.sub
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
@@ -865,24 +935,33 @@ class _AppliedIconPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _AppliedIconPainter oldDelegate) => 
+      oldDelegate.isActive != isActive;
 }
 
 class _ProfileIcon extends StatelessWidget {
+  final bool isActive;
+  
+  const _ProfileIcon({this.isActive = false});
+
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       size: const Size(24, 24),
-      painter: _ProfileIconPainter(),
+      painter: _ProfileIconPainter(isActive: isActive),
     );
   }
 }
 
 class _ProfileIconPainter extends CustomPainter {
+  final bool isActive;
+  
+  _ProfileIconPainter({this.isActive = false});
+  
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.muted.withOpacity(0.6)
+      ..color = isActive ? AppColors.text : AppColors.sub
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
@@ -898,7 +977,8 @@ class _ProfileIconPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _ProfileIconPainter oldDelegate) => 
+      oldDelegate.isActive != isActive;
 }
 
 class Skeleton extends StatelessWidget {
