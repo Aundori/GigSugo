@@ -8,6 +8,8 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/register_screen.dart';
 import 'features/auth/screens/role_select_screen.dart';
 import 'features/home/screens/musician_home_screen.dart';
+import 'features/gigs/screens/gig_feed_screen.dart';
+import 'features/applications/screens/applied_screen.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
@@ -66,6 +68,14 @@ final GoRouter _router = GoRouter(
           ),
         ),
       ),
+    ),
+    GoRoute(
+      path: '/gigs',
+      builder: (context, state) => const GigFeedScreen(),
+    ),
+    GoRoute(
+      path: '/applications',
+      builder: (context, state) => const AppliedScreen(),
     ),
     GoRoute(
       path: '/login',
