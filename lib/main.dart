@@ -10,6 +10,7 @@ import 'features/auth/screens/role_select_screen.dart';
 import 'features/home/screens/musician_home_screen.dart';
 import 'features/gigs/screens/gig_feed_screen.dart';
 import 'features/applications/screens/applied_screen.dart';
+import 'features/profile/screens/musician_profile_screen.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
@@ -76,6 +77,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/applications',
       builder: (context, state) => const AppliedScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const MusicianProfileScreen(),
     ),
     GoRoute(
       path: '/login',
