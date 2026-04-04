@@ -13,6 +13,8 @@ import 'features/applications/screens/applied_screen.dart';
 import 'features/profile/screens/musician_profile_screen.dart';
 import 'core/theme/app_theme.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

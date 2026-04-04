@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
+import '../../../main.dart' as main;
 
 class Gig {
   final String id;
@@ -197,6 +198,7 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.bg,
+      drawer: _Drawer(),
       body: RefreshIndicator(
         key: _refreshKey,
         onRefresh: _refresh,
@@ -257,73 +259,78 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                       ),
                     ],
                   ),
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [AppColors.amber, AppColors.copper],
-                      ),
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Bar 1 — short, opacity 0.45
-                          Container(
-                            width: 2,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: AppColors.bg.withOpacity(0.45),
-                              borderRadius: BorderRadius.circular(1),
-                            ),
+                  Builder(
+                    builder: (context) => GestureDetector(
+                      onTap: () => Scaffold.of(context).openDrawer(),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [AppColors.amber, AppColors.copper],
                           ),
-                          const SizedBox(width: 2),
-                          // Bar 2 — medium, opacity 0.70
-                          Container(
-                            width: 2,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: AppColors.bg.withOpacity(0.70),
-                              borderRadius: BorderRadius.circular(1),
-                            ),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Bar 1 — short, opacity 0.45
+                              Container(
+                                width: 2,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: AppColors.bg.withOpacity(0.45),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              // Bar 2 — medium, opacity 0.70
+                              Container(
+                                width: 2,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: AppColors.bg.withOpacity(0.70),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              // Bar 3 — tallest, full opacity, slightly thicker
+                              Container(
+                                width: 3,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: AppColors.bg,
+                                  borderRadius: BorderRadius.circular(1.5),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              // Bar 4 — medium, opacity 0.70
+                              Container(
+                                width: 2,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: AppColors.bg.withOpacity(0.70),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              // Bar 5 — short, opacity 0.45
+                              Container(
+                                width: 2,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: AppColors.bg.withOpacity(0.45),
+                                  borderRadius: BorderRadius.circular(1),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 2),
-                          // Bar 3 — tallest, full opacity, slightly thicker
-                          Container(
-                            width: 3,
-                            height: 22,
-                            decoration: BoxDecoration(
-                              color: AppColors.bg,
-                              borderRadius: BorderRadius.circular(1.5),
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          // Bar 4 — medium, opacity 0.70
-                          Container(
-                            width: 2,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: AppColors.bg.withOpacity(0.70),
-                              borderRadius: BorderRadius.circular(1),
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          // Bar 5 — short, opacity 0.45
-                          Container(
-                            width: 2,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: AppColors.bg.withOpacity(0.45),
-                              borderRadius: BorderRadius.circular(1),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -663,6 +670,290 @@ class _NearbyGigCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Drawer extends StatefulWidget {
+  const _Drawer({super.key});
+
+  @override
+  State<_Drawer> createState() => _DrawerState();
+}
+
+class _DrawerState extends State<_Drawer> {
+  Future<void> _logout(BuildContext context) async {
+    // Capture the root navigator context BEFORE
+    // showing the dialog — this stays valid even
+    // after the drawer and dialog are both closed
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
+
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          backgroundColor: AppColors.card,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: AppColors.red.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.logout_rounded,
+                    color: AppColors.red,
+                    size: 30,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Log Out?',
+                  style: TextStyle(
+                    fontFamily: 'Cormorant Garamond',
+                    fontSize: 20,
+                    color: AppColors.text,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Are you sure you want to log out?',
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
+                    fontSize: 14,
+                    color: AppColors.sub,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () =>
+                            Navigator.of(dialogContext).pop(false),
+                        style: TextButton.styleFrom(
+                          padding:
+                              const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side:
+                                const BorderSide(color: AppColors.border),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontFamily: 'DM Sans',
+                            color: AppColors.text,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () =>
+                            Navigator.of(dialogContext).pop(true),
+                        style: TextButton.styleFrom(
+                          padding:
+                              const EdgeInsets.symmetric(vertical: 12),
+                          backgroundColor: AppColors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Log Out',
+                          style: TextStyle(
+                            fontFamily: 'DM Sans',
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (shouldLogout == true) {
+      // Close the dialog first
+      Navigator.of(context).pop();
+      // Sign out from Firebase
+      await FirebaseAuth.instance.signOut();
+      
+      // Simple timeout approach - wait a bit then navigate
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          context.go('/login');
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      backgroundColor: AppColors.card,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.amber, AppColors.copper],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                // GigSugo Logo
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.bg,
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Bar 1 — short, opacity 0.45
+                        Container(
+                          width: 2,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: AppColors.bg.withOpacity(0.45),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                        const SizedBox(width: 1),
+                        // Bar 2 — medium, opacity 0.70
+                        Container(
+                          width: 2,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: AppColors.bg.withOpacity(0.70),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                        const SizedBox(width: 1),
+                        // Bar 3 — tallest, full opacity, slightly thicker
+                        Container(
+                          width: 2,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: AppColors.bg,
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                        const SizedBox(width: 1),
+                        // Bar 4 — medium, opacity 0.70
+                        Container(
+                          width: 2,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: AppColors.bg.withOpacity(0.70),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                        const SizedBox(width: 1),
+                        // Bar 5 — short, opacity 0.45
+                        Container(
+                          width: 2,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: AppColors.bg.withOpacity(0.45),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'GigSugo',
+                  style: TextStyle(
+                    fontFamily: 'Cormorant Garamond',
+                    fontSize: 18,
+                    color: AppColors.bg,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.person_outline, color: AppColors.text),
+            title: const Text(
+              'Profile',
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                color: AppColors.text,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              // Navigate to profile - you can add router navigation here
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings_outlined, color: AppColors.text),
+            title: const Text(
+              'Settings',
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                color: AppColors.text,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              // Navigate to settings - you can add router navigation here
+            },
+          ),
+          const Divider(color: AppColors.border),
+          ListTile(
+            leading: const Icon(Icons.logout, color: AppColors.red),
+            title: const Text(
+              'Log Out',
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                color: AppColors.red,
+              ),
+            ),
+            onTap: () async {
+              Navigator.pop(context);
+              await _logout(context);
+            },
+          ),
+        ],
       ),
     );
   }

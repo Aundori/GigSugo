@@ -93,7 +93,7 @@ class _AppliedScreenState extends ConsumerState<AppliedScreen> {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 50, bottom: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -208,35 +208,38 @@ class _StatsRow extends StatelessWidget {
     final accepted = applications.where((app) => app.status == 'accepted').length;
     final pending = applications.where((app) => app.status == 'pending').length;
 
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: _StatCard(
-            label: 'TOTAL',
-            value: total.toString(),
-            color: AppColors.amber,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: _StatCard(
+              label: 'TOTAL',
+              value: total.toString(),
+              color: AppColors.amber,
+            ),
           ),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          flex: 1,
-          child: _StatCard(
-            label: 'ACCEPTED',
-            value: accepted.toString(),
-            color: AppColors.green,
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: _StatCard(
+              label: 'ACCEPTED',
+              value: accepted.toString(),
+              color: AppColors.green,
+            ),
           ),
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          flex: 1,
-          child: _StatCard(
-            label: 'PENDING',
-            value: pending.toString(),
-            color: AppColors.amber,
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: _StatCard(
+              label: 'PENDING',
+              value: pending.toString(),
+              color: AppColors.amber,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -255,33 +258,48 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 80,
       decoration: BoxDecoration(
         color: AppColors.card,
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.border.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'DM Sans',
-              fontSize: 7,
-              color: AppColors.muted,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.w600,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                fontSize: 8,
+                color: color,
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 8),
           Text(
             value,
             style: TextStyle(
-              fontFamily: 'Cormorant Garamond',
-              fontSize: 16,
+              fontFamily: 'DM Sans',
+              fontSize: 24,
               color: color,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w800,
+              height: 1.0,
             ),
           ),
         ],
