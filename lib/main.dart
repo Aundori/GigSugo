@@ -9,8 +9,14 @@ import 'features/auth/screens/register_screen.dart';
 import 'features/auth/screens/role_select_screen.dart';
 import 'features/home/screens/musician_home_screen.dart';
 import 'features/gigs/screens/gig_feed_screen.dart';
+import 'features/gigs/screens/post_gig_screen.dart';
+import 'features/gigs/screens/my_gigs_screen.dart';
+import 'features/gigs/screens/gig_detail_screen.dart';
 import 'features/applications/screens/applied_screen.dart';
+import 'features/applications/screens/applicants_screen.dart';
+import 'features/home/screens/client_home_screen.dart';
 import 'features/profile/screens/musician_profile_screen.dart';
+import 'features/profile/screens/client_profile_screen.dart';
 import 'core/theme/app_theme.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -63,26 +69,46 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/client-home',
-      builder: (context, state) => const Scaffold(
-        body: Center(
-          child: Text(
-            'Client Home - Coming Next',
-            style: TextStyle(color: Colors.white, fontSize: 24),
-          ),
-        ),
-      ),
+      builder: (context, state) => const ClientHomeScreen(),
     ),
     GoRoute(
       path: '/gigs',
       builder: (context, state) => const GigFeedScreen(),
     ),
     GoRoute(
+      path: '/gig-detail/:gigId',
+      builder: (context, state) {
+        final gigId = state.pathParameters['gigId']!;
+        return GigDetailScreen(gigId: gigId);
+      },
+    ),
+    GoRoute(
+      path: '/post-gig',
+      builder: (context, state) => const PostGigScreen(),
+    ),
+    GoRoute(
+      path: '/my-gigs',
+      builder: (context, state) => const MyGigsScreen(),
+    ),
+    GoRoute(
       path: '/applications',
       builder: (context, state) => const AppliedScreen(),
     ),
     GoRoute(
+      path: '/applicants/:gigId',
+      builder: (context, state) {
+        final gigId = state.pathParameters['gigId']!;
+        final gigTitle = state.uri.queryParameters['title'] ?? 'Gig';
+        return ApplicantsScreen(gigId: gigId, gigTitle: gigTitle);
+      },
+    ),
+    GoRoute(
       path: '/profile',
       builder: (context, state) => const MusicianProfileScreen(),
+    ),
+    GoRoute(
+      path: '/client-profile',
+      builder: (context, state) => const ClientProfileScreen(),
     ),
     GoRoute(
       path: '/login',

@@ -40,24 +40,60 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (userCredential.user != null) {
+        print('🔥 User logged in successfully: ${userCredential.user!.uid}');
+        
         // Check user role from Firestore
         final userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(userCredential.user!.uid)
             .get();
 
+        print('📄 User doc exists in users: ${userDoc.exists}');
+        
         if (userDoc.exists) {
           final role = userDoc.data()?['role'] as String?;
+          print('👤 User role from users: "$role"');
           
           if (role == 'musician') {
+            print('🎸 Navigating to musician home');
             if (mounted) context.go('/musician-home');
           } else if (role == 'client') {
+            print('💼 Navigating to client home');
             if (mounted) context.go('/client-home');
           } else {
+            print('❌ Unknown role, going to role select');
             if (mounted) context.go('/role-select');
           }
         } else {
-          if (mounted) context.go('/role-select');
+          print('❌ User doc not found in users, checking client_profiles...');
+          
+          // Check if user exists in client_profiles and migrate to users
+          final clientDoc = await FirebaseFirestore.instance
+              .collection('client_profiles')
+              .doc(userCredential.user!.uid)
+              .get();
+          
+          if (clientDoc.exists) {
+            print('👤 Found user in client_profiles, migrating to users collection...');
+            final clientData = clientDoc.data()!;
+            
+            // Copy to users collection
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(userCredential.user!.uid)
+                .set({
+                  'name': clientData['name'] ?? '',
+                  'email': clientData['email'] ?? '',
+                  'role': 'client',
+                  'createdAt': FieldValue.serverTimestamp(),
+                });
+            
+            print('✅ User migrated to users collection, navigating to client home');
+            if (mounted) context.go('/client-home');
+          } else {
+            print('❌ User not found in any collection, going to role select');
+            if (mounted) context.go('/role-select');
+          }
         }
       }
     } catch (e) {

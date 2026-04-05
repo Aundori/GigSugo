@@ -46,7 +46,7 @@ class Gig {
 // Riverpod StreamProvider for real-time updates
 final gigsProvider = StreamProvider<List<Gig>>((ref) {
   return FirebaseFirestore.instance
-      .collection('gigs')
+      .collection('gig_listings')
       .where('status', isEqualTo: 'open')
       .orderBy('createdAt', descending: true)
       .snapshots()
@@ -69,7 +69,7 @@ class _GigFeedScreenState extends ConsumerState<GigFeedScreen> {
 
   Stream<QuerySnapshot> _getFilteredGigsStream() {
     Query query = FirebaseFirestore.instance
-        .collection('gigs')
+        .collection('gig_listings')
         .where('status', isEqualTo: 'open')
         .orderBy('createdAt', descending: true);
 
@@ -205,23 +205,23 @@ class _GigFeedScreenState extends ConsumerState<GigFeedScreen> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: _getFilteredGigsStream(),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.amber,
-                      ),
-                    );
-                  }
-
                   if (snapshot.hasError) {
-                    return Center(
+                    return const Center(
                       child: Text(
                         'Error loading gigs',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'DM Sans',
                           fontSize: 14,
                           color: AppColors.sub,
                         ),
+                      ),
+                    );
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.amber,
                       ),
                     );
                   }
@@ -314,7 +314,7 @@ class GigCard extends StatelessWidget {
             // Left Accent Bar
             Container(
               width: 3,
-              height: double.infinity,
+              height: 80, // Fixed height instead of double.infinity
               color: _getTagColor(gig.tag),
             ),
             // Content
@@ -339,7 +339,7 @@ class GigCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              gig.tag!,
+                              gig.tag ?? '',
                               style: TextStyle(
                                 fontFamily: 'DM Sans',
                                 fontSize: 9,
@@ -399,7 +399,7 @@ class GigCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            gig.genre!,
+                            gig.genre ?? '',
                             style: const TextStyle(
                               fontFamily: 'DM Sans',
                               fontSize: 11,
@@ -415,12 +415,12 @@ class GigCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          gig.budget,
+                          '₱${gig.budget.replaceAll(RegExp(r'[^\d.]'), '')}',
                           style: const TextStyle(
                             fontFamily: 'Cormorant Garamond',
                             fontSize: 16,
+                            fontWeight: FontWeight.bold,
                             color: AppColors.amber,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         Row(

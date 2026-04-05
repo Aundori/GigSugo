@@ -90,10 +90,11 @@ class _AppliedScreenState extends ConsumerState<AppliedScreen> {
       backgroundColor: AppColors.bg,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 50, bottom: 20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -119,11 +120,11 @@ class _AppliedScreenState extends ConsumerState<AppliedScreen> {
               ),
             ),
             
-            // Stats Row
+            // Stats Dashboard
             applicationsAsync.when(
-              data: (applications) => _StatsRow(applications: applications),
-              loading: () => _StatsRow(applications: []),
-              error: (_, __) => _StatsRow(applications: []),
+              data: (applications) => _ApplicationsDashboard(applications: applications),
+              loading: () => _ApplicationsDashboard(applications: []),
+              error: (_, __) => _ApplicationsDashboard(applications: []),
             ),
             
             const SizedBox(height: 16),
@@ -160,17 +161,17 @@ class _AppliedScreenState extends ConsumerState<AppliedScreen> {
                   }
                   
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: filteredApplications.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _ApplicationCard(
-                          application: filteredApplications[index],
-                        ),
-                      );
-                    },
-                  );
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: filteredApplications.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _ApplicationCard(
+                            application: filteredApplications[index],
+                          ),
+                        );
+                      },
+                    );
                 },
                 loading: () => _LoadingState(),
                 error: (_, __) => _ErrorState(),
@@ -197,10 +198,10 @@ class _AppliedScreenState extends ConsumerState<AppliedScreen> {
   }
 }
 
-class _StatsRow extends StatelessWidget {
+class _ApplicationsDashboard extends StatelessWidget {
   final List<Application> applications;
 
-  const _StatsRow({required this.applications});
+  const _ApplicationsDashboard({required this.applications});
 
   @override
   Widget build(BuildContext context) {
@@ -208,35 +209,86 @@ class _StatsRow extends StatelessWidget {
     final accepted = applications.where((app) => app.status == 'accepted').length;
     final pending = applications.where((app) => app.status == 'pending').length;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
         children: [
-          Expanded(
-            flex: 2,
-            child: _StatCard(
-              label: 'TOTAL',
-              value: total.toString(),
-              color: AppColors.amber,
-            ),
+          // Header
+          Row(
+            children: [
+              Icon(
+                Icons.description_outlined,
+                size: 20,
+                color: AppColors.amber,
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 2, left: 4),
+                child: Text(
+                  'Applications Overview',
+                  style: TextStyle(
+                    fontFamily: 'Cormorant Garamond',
+                    fontSize: 18,
+                    color: AppColors.text,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: _StatCard(
-              label: 'ACCEPTED',
-              value: accepted.toString(),
-              color: AppColors.green,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            flex: 2,
-            child: _StatCard(
-              label: 'PENDING',
-              value: pending.toString(),
-              color: AppColors.amber,
-            ),
+          const SizedBox(height: 16),
+          
+          // Metrics Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Total
+              Expanded(
+                child: _MetricItem(
+                  value: total.toString(),
+                  label: 'Total',
+                  color: AppColors.amber,
+                ),
+              ),
+              
+              // Vertical divider
+              Container(
+                width: 1,
+                height: 40,
+                color: AppColors.border.withOpacity(0.3),
+              ),
+              
+              // Accepted
+              Expanded(
+                child: _MetricItem(
+                  value: accepted.toString(),
+                  label: 'Accepted',
+                  color: AppColors.green,
+                ),
+              ),
+              
+              // Vertical divider
+              Container(
+                width: 1,
+                height: 40,
+                color: AppColors.border.withOpacity(0.3),
+              ),
+              
+              // Pending
+              Expanded(
+                child: _MetricItem(
+                  value: pending.toString(),
+                  label: 'Pending',
+                  color: AppColors.amber,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -244,66 +296,40 @@ class _StatsRow extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String label;
+class _MetricItem extends StatelessWidget {
   final String value;
+  final String label;
   final Color color;
 
-  const _StatCard({
-    required this.label,
+  const _MetricItem({
     required this.value,
+    required this.label,
     required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        border: Border.all(color: AppColors.border.withOpacity(0.3)),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontFamily: 'Cormorant Garamond',
+            fontSize: 24,
+            color: AppColors.text,
+            fontWeight: FontWeight.bold,
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'DM Sans',
-                fontSize: 8,
-                color: color,
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'DM Sans',
+            fontSize: 12,
+            color: AppColors.sub,
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: 'DM Sans',
-              fontSize: 24,
-              color: color,
-              fontWeight: FontWeight.w800,
-              height: 1.0,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

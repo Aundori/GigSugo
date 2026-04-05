@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/constants/colors.dart';
 import '../../../shared/widgets/bottom_nav_bar.dart';
@@ -549,6 +550,21 @@ class _ProfileHeader extends StatelessWidget {
                   loading: () => Navigator.pop(context),
                   error: (_, __) => Navigator.pop(context),
                 );
+              },
+            ),
+            // Logout Option
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontFamily: 'DM Sans',
+                  color: Colors.red,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showLogoutConfirmationDialog(context);
               },
             ),
           ],
@@ -1526,6 +1542,130 @@ class _ProfileHeader extends StatelessWidget {
         ),
       );
     }
+  }
+
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.card,
+        title: const Text(
+          'Logout',
+          style: TextStyle(
+            fontFamily: 'DM Sans',
+            fontWeight: FontWeight.w600,
+            color: AppColors.text,
+          ),
+        ),
+        content: const Text(
+          'Are you sure you want to logout?',
+          style: TextStyle(
+            fontFamily: 'DM Sans',
+            color: AppColors.text,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                color: AppColors.muted,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                Navigator.pop(context);
+                print('Starting logout process...');
+                
+                // Check current user before logout
+                final currentUser = FirebaseAuth.instance.currentUser;
+                print('Current user before logout: ${currentUser?.uid}');
+                
+                await FirebaseAuth.instance.signOut();
+                print('Firebase sign out completed');
+                
+                // Check user after logout
+                final userAfterLogout = FirebaseAuth.instance.currentUser;
+                print('Current user after logout: ${userAfterLogout?.uid}');
+                
+                // Use a delay to ensure context is available
+                await Future.delayed(const Duration(milliseconds: 200));
+                print('Navigating to login screen...');
+                
+                if (context.mounted) {
+                  // Try multiple navigation methods
+                  try {
+                    // Method 1: Direct GoRouter
+                    context.go('/login');
+                    print('GoRouter navigation successful');
+                  } catch (e) {
+                    print('GoRouter failed: $e');
+                    try {
+                      // Method 2: GoRouter.of
+                      GoRouter.of(context).go('/login');
+                      print('GoRouter.of navigation successful');
+                    } catch (e2) {
+                      print('GoRouter.of failed: $e2');
+                      try {
+                        // Method 3: Navigator with root
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/login',
+                          (route) => false,
+                        );
+                        print('Navigator navigation successful');
+                      } catch (e3) {
+                        print('Navigator failed: $e3');
+                        // Method 4: Force app restart
+                        if (context.mounted) {
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/',
+                            (route) => false,
+                          );
+                          // Immediate redirect to login
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            if (context.mounted) {
+                              context.go('/login');
+                            }
+                          });
+                          print('Force restart navigation attempted');
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  print('Context not mounted for navigation');
+                }
+              } catch (e) {
+                print('Logout error: $e');
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Logout failed: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text(
+              'Logout',
+              style: TextStyle(
+                fontFamily: 'DM Sans',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -337,46 +337,24 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
                 ],
               ),
               const SizedBox(height: 32),
-              // Stats Row
+              // Stats Dashboard
               userStatsAsync.when(
-                  data: (stats) => Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
-                          label: 'APPLIED',
-                          value: stats.applied.toString(),
-                          color: AppColors.amber,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
-                          label: 'ACCEPTED',
-                          value: stats.accepted.toString(),
-                          color: AppColors.green,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
-                          label: 'RATING',
-                          value: stats.rating.toStringAsFixed(1),
-                          color: AppColors.gold,
-                        ),
-                      ),
-                    ],
+                  data: (stats) => _BusinessDashboard(
+                    applied: stats.applied,
+                    accepted: stats.accepted,
+                    rating: stats.rating,
                   ),
-                  loading: () => Row(
-                    children: List.generate(3, (index) => Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(right: index < 2 ? 12 : 0),
-                        child: const Skeleton(height: 80),
-                      ),
-                    )),
+                  loading: () => Container(
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: AppColors.violet.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Skeleton(height: 120),
                   ),
                   error: (_, _) => const SizedBox(),
                 ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               // Featured Gig
               featuredGigAsync.when(
                 data: (gig) => gig != null ? _FeaturedGigCard(gig: gig) : const SizedBox(),
@@ -421,47 +399,194 @@ class _MusicianHomeScreenState extends ConsumerState<MusicianHomeScreen> {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String label;
+class _MusicianMetric extends StatelessWidget {
   final String value;
+  final String label;
   final Color color;
+  final IconData icon;
 
-  const _StatCard({
-    required this.label,
+  const _MusicianMetric({
     required this.value,
+    required this.label,
     required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: color.withOpacity(0.8),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'Cormorant Garamond',
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            fontFamily: 'DM Sans',
+            fontSize: 9,
+            fontWeight: FontWeight.w500,
+            color: AppColors.muted,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BusinessDashboard extends StatelessWidget {
+  final int applied;
+  final int accepted;
+  final double rating;
+
+  const _BusinessDashboard({
+    required this.applied,
+    required this.accepted,
+    required this.rating,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 68,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.card,
         border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'DM Sans',
-              fontSize: 10,
-              color: AppColors.muted,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.w600,
+          // Header with title
+          Padding(
+            padding: const EdgeInsets.only(left: 10, top: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.amber, AppColors.copper],
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.bar_chart_rounded,
+                    size: 20,
+                    color: AppColors.bg,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Musician Overview',
+                  style: TextStyle(
+                    fontFamily: 'Cormorant Garamond',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.text,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: 'Cormorant Garamond',
-              fontSize: 22,
-              color: color,
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: 12),
+          
+          // Metrics row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _MusicianMetric(
+                value: applied >= 1000 ? '${(applied / 1000).toStringAsFixed(1)}K' : applied.toString(),
+                label: 'Applied',
+                color: AppColors.amber,
+                icon: Icons.send_rounded,
+              ),
+              
+              // Vertical divider
+              Container(
+                width: 1,
+                height: 40,
+                color: AppColors.border.withOpacity(0.3),
+              ),
+              
+              _MusicianMetric(
+                value: accepted >= 1000 ? '${(accepted / 1000).toStringAsFixed(1)}K' : accepted.toString(),
+                label: 'Accepted',
+                color: const Color(0xFF00C896),
+                icon: Icons.check_circle_outline_rounded,
+              ),
+              
+              // Vertical divider
+              Container(
+                width: 1,
+                height: 40,
+                color: AppColors.border.withOpacity(0.3),
+              ),
+              
+              _MusicianMetric(
+                value: rating.toStringAsFixed(1),
+                label: 'Rating',
+                color: AppColors.violet,
+                icon: Icons.star_border_rounded,
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 20),
+          
+          // Action button
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: ElevatedButton(
+              onPressed: () {
+                context.go('/applications');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.amber,
+                foregroundColor: AppColors.bg,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                elevation: 0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.description_outlined,
+                    size: 16,
+                    color: AppColors.bg,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'View Applications',
+                    style: TextStyle(
+                      fontFamily: 'DM Sans',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -684,10 +809,14 @@ class _Drawer extends StatefulWidget {
 
 class _DrawerState extends State<_Drawer> {
   Future<void> _logout(BuildContext context) async {
+    // Check if context is valid before proceeding
+    if (!context.mounted) return;
+    
     // Capture the root navigator context BEFORE
     // showing the dialog — this stays valid even
     // after the drawer and dialog are both closed
     final rootNavigator = Navigator.of(context, rootNavigator: true);
+    final rootContext = rootNavigator.context;
 
     final shouldLogout = await showDialog<bool>(
       context: context,
@@ -719,22 +848,20 @@ class _DrawerState extends State<_Drawer> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  'Log Out?',
-                  style: TextStyle(
-                    fontFamily: 'Cormorant Garamond',
-                    fontSize: 20,
-                    color: AppColors.text,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Are you sure you want to log out?',
+                  'Logout',
                   style: TextStyle(
                     fontFamily: 'DM Sans',
-                    fontSize: 14,
-                    color: AppColors.sub,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.text,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Are you sure you want to logout?',
+                  style: TextStyle(
+                    fontFamily: 'DM Sans',
+                    color: AppColors.muted,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -743,22 +870,19 @@ class _DrawerState extends State<_Drawer> {
                   children: [
                     Expanded(
                       child: TextButton(
-                        onPressed: () =>
-                            Navigator.of(dialogContext).pop(false),
+                        onPressed: () => Navigator.pop(dialogContext, false),
                         style: TextButton.styleFrom(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
-                            side:
-                                const BorderSide(color: AppColors.border),
+                            side: BorderSide(color: AppColors.border),
                           ),
                         ),
                         child: const Text(
                           'Cancel',
                           style: TextStyle(
                             fontFamily: 'DM Sans',
-                            color: AppColors.text,
+                            color: AppColors.muted,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -766,22 +890,20 @@ class _DrawerState extends State<_Drawer> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: TextButton(
-                        onPressed: () =>
-                            Navigator.of(dialogContext).pop(true),
-                        style: TextButton.styleFrom(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 12),
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(dialogContext, true),
+                        style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: const Text(
-                          'Log Out',
+                          'Logout',
                           style: TextStyle(
                             fontFamily: 'DM Sans',
-                            color: Colors.white,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -797,17 +919,33 @@ class _DrawerState extends State<_Drawer> {
     );
 
     if (shouldLogout == true) {
-      // Close the dialog first
-      Navigator.of(context).pop();
+      print('Starting drawer logout process...');
+      
       // Sign out from Firebase
       await FirebaseAuth.instance.signOut();
+      print('Firebase sign out completed');
       
-      // Simple timeout approach - wait a bit then navigate
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          context.go('/login');
+      // Navigate immediately using root context
+      print('Attempting navigation to login screen...');
+      
+      try {
+        rootContext.go('/login');
+        print('GoRouter navigation successful using root context');
+      } catch (e) {
+        print('GoRouter failed with root context: $e');
+        try {
+          GoRouter.of(rootContext).go('/login');
+          print('GoRouter.of navigation successful using root context');
+        } catch (e2) {
+          print('GoRouter.of failed with root context: $e2');
+          // Last resort - use root navigator
+          rootNavigator.pushNamedAndRemoveUntil(
+            '/login',
+            (route) => false,
+          );
+          print('Root navigator navigation attempted');
         }
-      });
+      }
     }
   }
 
